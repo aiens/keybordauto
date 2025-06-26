@@ -146,32 +146,42 @@ Linux: icon.png (256x256 像素的 .png 文件)
 def install_pyinstaller():
     """安装PyInstaller"""
     try:
-        import pyinstaller
-        print("✓ PyInstaller 已安装")
-        return True
-    except ImportError:
-        print("正在安装 PyInstaller...")
-        try:
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyinstaller==6.3.0'])
-            print("✓ PyInstaller 安装成功")
+        # 尝试运行PyInstaller命令来检查是否已安装
+        result = subprocess.run([sys.executable, '-m', 'PyInstaller', '--version'],
+                              capture_output=True, text=True)
+        if result.returncode == 0:
+            print("✓ PyInstaller 已安装")
             return True
-        except subprocess.CalledProcessError as e:
-            print(f"✗ PyInstaller 安装失败: {e}")
-            return False
+    except Exception:
+        pass
+
+    print("正在安装 PyInstaller...")
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyinstaller==6.3.0'])
+        print("✓ PyInstaller 安装成功")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ PyInstaller 安装失败: {e}")
+        return False
 
 
 def build_app():
     """构建应用程序"""
     system, arch = get_platform_info()
-    
+
     print(f"开始为 {system}-{arch} 平台构建应用程序...")
-    
+
+    # 检查spec文件是否存在
+    if not os.path.exists('KeyboardAutomation.spec'):
+        print("⚠️ 未找到spec文件，创建中...")
+        create_spec_file()
+
     # 清理之前的构建
     for dir_name in ['build', 'dist']:
         if os.path.exists(dir_name):
             shutil.rmtree(dir_name)
             print(f"✓ 已清理 {dir_name} 目录")
-    
+
     # 构建命令
     cmd = [
         sys.executable, '-m', 'PyInstaller',
@@ -179,14 +189,27 @@ def build_app():
         '--noconfirm',
         'KeyboardAutomation.spec'
     ]
-    
+
     try:
         print("正在构建应用程序...")
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        
-        if result.returncode == 0:
+        print(f"执行命令: {' '.join(cmd)}")
+
+        # 在CI环境中显示更多输出
+        if os.environ.get('CI'):
+            result = subprocess.run(cmd, text=True)
+            success = result.returncode == 0
+        else:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            success = result.returncode == 0
+            if not success:
+                print("错误输出:")
+                print(result.stderr)
+                print("标准输出:")
+                print(result.stdout)
+
+        if success:
             print("✓ 应用程序构建成功！")
-            
+
             # 显示输出文件信息
             dist_dir = Path('dist')
             if dist_dir.exists():
@@ -194,16 +217,16 @@ def build_app():
                 for item in dist_dir.iterdir():
                     size = get_size_str(item)
                     print(f"  - {item.name} ({size})")
-            
+
             return True
         else:
             print("✗ 应用程序构建失败")
-            print("错误输出:")
-            print(result.stderr)
             return False
-            
+
     except Exception as e:
         print(f"✗ 构建过程出错: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 

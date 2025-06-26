@@ -1,3 +1,0 @@
-([('KeyboardAutomation',
-   '/Users/aiens/code/keyboardsys/dist/KeyboardAutomation',
-   'EXECUTABLE')],)

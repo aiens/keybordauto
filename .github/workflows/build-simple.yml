@@ -1,0 +1,205 @@
+name: Simple Cross-Platform Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create icon
+      run: python create_icon.py
+    
+    - name: Build Windows app
+      run: python build_app.py
+    
+    - name: Create release package
+      run: python create_release.py
+    
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: KeyboardAutomation-Windows
+        path: releases/
+        retention-days: 30
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk python3-dev libx11-dev xvfb
+    
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install -r requirements.txt
+    
+    - name: Create icon
+      run: python3 create_icon.py
+    
+    - name: Build Linux app with virtual display
+      run: |
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+        python3 build_app.py
+    
+    - name: Create release package
+      run: python3 create_release.py
+    
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: KeyboardAutomation-Linux
+        path: releases/
+        retention-days: 30
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install -r requirements.txt
+    
+    - name: Create icon
+      run: python3 create_icon.py
+    
+    - name: Build macOS app
+      run: python3 build_app.py
+    
+    - name: Create release package
+      run: python3 create_release.py
+    
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: KeyboardAutomation-macOS
+        path: releases/
+        retention-days: 30
+
+  create-release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: KeyboardAutomation-Windows
+        path: artifacts/windows/
+    
+    - name: Download Linux artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: KeyboardAutomation-Linux
+        path: artifacts/linux/
+    
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: KeyboardAutomation-macOS
+        path: artifacts/macos/
+    
+    - name: List all artifacts
+      run: |
+        echo "=== Windows artifacts ==="
+        find artifacts/windows -type f -name "*.zip" -o -name "*.tar.gz" | head -10
+        echo "=== Linux artifacts ==="
+        find artifacts/linux -type f -name "*.zip" -o -name "*.tar.gz" | head -10
+        echo "=== macOS artifacts ==="
+        find artifacts/macos -type f -name "*.zip" -o -name "*.tar.gz" | head -10
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        name: KeyboardAutomation v${{ github.run_number }}
+        draft: false
+        prerelease: false
+        files: |
+          artifacts/**/*.tar.gz
+          artifacts/**/*.zip
+        body: |
+          ## 🎉 键盘自动化软件 v${{ github.run_number }}
+          
+          ### 📦 下载指南
+          
+          #### Windows用户 🪟
+          - 下载: `KeyboardAutomation-*-windows-*.zip`
+          - 解压后运行: `KeyboardAutomation.exe`
+          - 或使用启动脚本: `启动应用.bat`
+          
+          #### macOS用户 🍎
+          - 下载: `KeyboardAutomation-*-macos-*.tar.gz`
+          - 解压后运行: `KeyboardAutomation.app`
+          - 或使用启动脚本: `启动应用.sh`
+          
+          #### Linux用户 🐧
+          - 下载: `KeyboardAutomation-*-linux-*.tar.gz`
+          - 解压后运行: `./KeyboardAutomation`
+          - 或使用启动脚本: `启动应用.sh`
+          
+          ### ⚠️ 重要提示
+          
+          1. **权限设置**: 首次运行需要设置系统辅助功能权限
+          2. **Windows**: 可能需要添加到杀毒软件白名单
+          3. **macOS**: 需要在"系统偏好设置 > 安全性与隐私 > 隐私 > 辅助功能"中授权
+          4. **Linux**: 确保运行在X11环境下
+          
+          ### 🚀 快速开始
+          
+          1. 下载对应平台的压缩包
+          2. 解压到任意目录
+          3. 运行启动脚本或可执行文件
+          4. 按照界面提示完成权限设置
+          5. 开始使用键盘自动化功能！
+          
+          ### 📚 文档
+          
+          每个压缩包都包含详细的使用说明：
+          - `使用指南.md` - 完整使用教程
+          - `安装说明.md` - 平台特定安装指南
+          - `configs/` - 示例配置文件
+          
+          ---
+          
+          **构建信息**
+          - 构建时间: ${{ github.run_id }}
+          - 提交哈希: ${{ github.sha }}
+          - 触发事件: ${{ github.event_name }}
