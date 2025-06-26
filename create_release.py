@@ -82,9 +82,16 @@ def create_release_package():
                 shutil.copytree(src_path, release_dir / item)
             else:
                 shutil.copy2(src_path, release_dir / item)
-            print(f"Copied {item}")
+            # Use ASCII-safe representation for file names with Unicode characters
+            if any(ord(char) > 127 for char in item):
+                print("Copied file (contains Unicode characters)")
+            else:
+                print(f"Copied {item}")
         else:
-            print(f"Warning: {item} not found")
+            if any(ord(char) > 127 for char in item):
+                print("Warning: file not found (contains Unicode characters)")
+            else:
+                print(f"Warning: {item} not found")
     
     # 创建启动脚本
     print("Creating launch scripts...")
