@@ -32,7 +32,7 @@ def create_release_package():
     release_name = f"KeyboardAutomation-{version}-{system}-{arch}-{timestamp}"
     release_dir = Path("releases") / release_name
     
-    print(f"创建发布包: {release_name}")
+    print(f"Creating release package: {release_name}")
     
     # 清理并创建发布目录
     if release_dir.exists():
@@ -45,7 +45,7 @@ def create_release_package():
         print("dist directory not found, please run build script first")
         return False
     
-    print("📦 复制应用程序文件...")
+    print("Copying application files...")
     if system == "darwin":
         # macOS应用包
         app_path = dist_dir / "KeyboardAutomation.app"
@@ -67,7 +67,7 @@ def create_release_package():
             return False
     
     # 复制文档和配置
-    print("📄 复制文档和配置文件...")
+    print("Copying documentation and configuration files...")
     files_to_copy = [
         "README.md",
         "使用指南.md", 
@@ -87,15 +87,15 @@ def create_release_package():
             print(f"Warning: {item} not found")
     
     # 创建启动脚本
-    print("🚀 创建启动脚本...")
+    print("Creating launch scripts...")
     create_launch_scripts(release_dir, system)
-    
+
     # 创建安装说明
-    print("📋 创建安装说明...")
+    print("Creating installation instructions...")
     create_install_readme(release_dir, system, version)
-    
+
     # 创建压缩包
-    print("🗜️ 创建压缩包...")
+    print("Creating archive...")
     if system == "windows":
         archive_path = f"releases/{release_name}.zip"
         create_zip_archive(release_dir, archive_path)
@@ -103,9 +103,9 @@ def create_release_package():
         archive_path = f"releases/{release_name}.tar.gz"
         create_tar_archive(release_dir, archive_path)
     
-    print(f"✅ 发布包创建完成!")
-    print(f"📁 目录: {release_dir}")
-    print(f"📦 压缩包: {archive_path}")
+    print(f"Release package creation completed!")
+    print(f"Directory: {release_dir}")
+    print(f"Archive: {archive_path}")
     
     return True
 
@@ -339,19 +339,19 @@ def create_tar_archive(source_dir, archive_path):
 
 def main():
     """主函数"""
-    print("键盘自动化软件 - 发布包创建工具")
+    print("Keyboard Automation Software - Release Package Creation Tool")
     print("=" * 40)
-    
+
     # 检查是否已打包
     if not Path("dist").exists():
         print("dist directory not found")
-        print("请先运行打包脚本: python3 build_app.py")
+        print("Please run build script first: python3 build_app.py")
         return False
     
     # 创建发布包
     if create_release_package():
         print("\nRelease package created successfully!")
-        print("可以将压缩包分发给用户使用。")
+        print("You can distribute the archive to users.")
         return True
     else:
         print("\nRelease package creation failed")
