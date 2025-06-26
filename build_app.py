@@ -155,7 +155,7 @@ def install_pyinstaller():
     except Exception:
         pass
 
-    print("正在安装 PyInstaller...")
+    print("Installing PyInstaller...")
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyinstaller==6.3.0'])
         print("PyInstaller installed successfully")
@@ -169,7 +169,7 @@ def build_app():
     """构建应用程序"""
     system, arch = get_platform_info()
 
-    print(f"开始为 {system}-{arch} 平台构建应用程序...")
+    print(f"Starting build for {system}-{arch} platform...")
 
     # 检查spec文件是否存在
     if not os.path.exists('KeyboardAutomation.spec'):
@@ -191,8 +191,8 @@ def build_app():
     ]
 
     try:
-        print("正在构建应用程序...")
-        print(f"执行命令: {' '.join(cmd)}")
+        print("Building application...")
+        print(f"Executing command: {' '.join(cmd)}")
 
         # 在CI环境中显示更多输出
         if os.environ.get('CI'):
@@ -202,9 +202,9 @@ def build_app():
             result = subprocess.run(cmd, capture_output=True, text=True)
             success = result.returncode == 0
             if not success:
-                print("错误输出:")
+                print("Error output:")
                 print(result.stderr)
-                print("标准输出:")
+                print("Standard output:")
                 print(result.stdout)
 
         if success:
@@ -213,18 +213,18 @@ def build_app():
             # 显示输出文件信息
             dist_dir = Path('dist')
             if dist_dir.exists():
-                print(f"\n构建输出位于: {dist_dir.absolute()}")
+                print(f"\nBuild output located at: {dist_dir.absolute()}")
                 for item in dist_dir.iterdir():
                     size = get_size_str(item)
                     print(f"  - {item.name} ({size})")
 
             return True
         else:
-            print("✗ 应用程序构建失败")
+            print("Application build failed")
             return False
 
     except Exception as e:
-        print(f"✗ 构建过程出错: {e}")
+        print(f"Build process error: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -312,11 +312,11 @@ pause
 
 def main():
     """主函数"""
-    print("键盘自动化软件 - 应用打包工具")
+    print("Keyboard Automation Software - Application Packaging Tool")
     print("=" * 40)
-    
+
     system, arch = get_platform_info()
-    print(f"当前平台: {system}-{arch}")
+    print(f"Current platform: {system}-{arch}")
     
     # 安装PyInstaller
     if not install_pyinstaller():
@@ -334,18 +334,18 @@ def main():
     # 构建应用
     if build_app():
         print("\nApplication packaging completed!")
-        print(f"输出目录: {Path('dist').absolute()}")
-        
+        print(f"Output directory: {Path('dist').absolute()}")
+
         if system == 'macos':
-            print("\nmacOS 使用说明:")
-            print("1. 运行 ./build_macos.sh 或直接运行 dist/KeyboardAutomation.app")
-            print("2. 首次运行需要授权辅助功能权限")
-            print("3. 系统偏好设置 > 安全性与隐私 > 隐私 > 辅助功能")
+            print("\nmacOS Usage Instructions:")
+            print("1. Run ./build_macos.sh or directly run dist/KeyboardAutomation.app")
+            print("2. First run requires accessibility permission authorization")
+            print("3. System Preferences > Security & Privacy > Privacy > Accessibility")
         elif system == 'windows':
-            print("\nWindows 使用说明:")
-            print("1. 运行 build_windows.bat 或直接运行 dist/KeyboardAutomation.exe")
-            print("2. 可能需要允许防火墙访问")
-            print("3. 某些杀毒软件可能误报，请添加到白名单")
+            print("\nWindows Usage Instructions:")
+            print("1. Run build_windows.bat or directly run dist/KeyboardAutomation.exe")
+            print("2. May need to allow firewall access")
+            print("3. Some antivirus software may flag it, please add to whitelist")
         
         return True
     else:
