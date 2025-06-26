@@ -7,8 +7,8 @@ echo.
 REM 检查Python是否安装
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ 未找到Python，请先安装Python 3.8+
-    echo 下载地址: https://www.python.org/downloads/
+    echo [ERROR] Python not found, please install Python 3.8+
+    echo Download: https://www.python.org/downloads/
     pause
     exit /b 1
 )
@@ -20,7 +20,7 @@ if errorlevel 1 (
     echo 安装依赖包...
     pip install -r requirements.txt
     if errorlevel 1 (
-        echo ❌ 依赖安装失败
+        echo [ERROR] Failed to install dependencies
         pause
         exit /b 1
     )
@@ -30,14 +30,14 @@ REM 创建图标
 echo 创建应用图标...
 python create_icon.py
 if errorlevel 1 (
-    echo ⚠️ 图标创建失败，继续构建...
+    echo [WARNING] Icon creation failed, continuing build...
 )
 
 REM 构建应用
 echo 构建应用程序...
 python build_app.py
 if errorlevel 1 (
-    echo ❌ 应用构建失败
+    echo [ERROR] Application build failed
     pause
     exit /b 1
 )
@@ -46,19 +46,19 @@ REM 创建发布包
 echo 创建发布包...
 python create_release.py
 if errorlevel 1 (
-    echo ⚠️ 发布包创建失败
+    echo [WARNING] Release package creation failed
 )
 
 echo.
-echo ✅ 构建完成！
-echo 应用程序位于: dist\KeyboardAutomation.exe
-echo 发布包位于: releases\
+echo [SUCCESS] Build completed!
+echo Application location: dist\KeyboardAutomation.exe
+echo Release packages: releases\
 echo.
-echo 使用说明:
-echo 1. 双击运行 KeyboardAutomation.exe
-echo 2. Windows 可能会显示安全警告，选择"仍要运行"
-echo 3. 某些杀毒软件可能会误报，请添加到白名单
-echo 4. 建议以管理员身份运行以获得完整功能
+echo Usage instructions:
+echo 1. Double-click to run KeyboardAutomation.exe
+echo 2. Windows may show security warning, choose "Run anyway"
+echo 3. Some antivirus may flag it, please add to whitelist
+echo 4. Recommend running as administrator for full functionality
 echo.
 
 pause

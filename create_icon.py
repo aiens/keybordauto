@@ -3,7 +3,7 @@
 创建应用图标
 """
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 import os
 
 
@@ -63,7 +63,7 @@ def create_icon():
     
     # PNG格式
     img.save(os.path.join(assets_dir, 'icon.png'), 'PNG')
-    print("✓ 已创建 icon.png")
+    print("Created icon.png")
     
     # ICO格式 (Windows)
     try:
@@ -74,18 +74,18 @@ def create_icon():
             ico_img = img.resize((s, s), Image.Resampling.LANCZOS)
             ico_images.append(ico_img)
         
-        ico_images[0].save(os.path.join(assets_dir, 'icon.ico'), 
+        ico_images[0].save(os.path.join(assets_dir, 'icon.ico'),
                           format='ICO', sizes=[(s, s) for s in sizes])
-        print("✓ 已创建 icon.ico")
+        print("Created icon.ico")
     except Exception as e:
-        print(f"创建ICO文件失败: {e}")
+        print(f"Failed to create ICO file: {e}")
     
     # ICNS格式 (macOS) - 需要额外的库
     try:
         # 简单方法：保存为PNG，然后用系统工具转换
         icns_png = img.resize((512, 512), Image.Resampling.LANCZOS)
         icns_png.save(os.path.join(assets_dir, 'icon_512.png'), 'PNG')
-        print("✓ 已创建 icon_512.png (可用于转换为ICNS)")
+        print("Created icon_512.png (can be used to convert to ICNS)")
         
         # 如果有iconutil命令，尝试创建ICNS
         import subprocess
@@ -104,19 +104,19 @@ def create_icon():
                 icns_img_2x.save(os.path.join(iconset_dir, f'icon_{s}x{s}@2x.png'), 'PNG')
             
             # 使用iconutil创建ICNS
-            subprocess.run(['iconutil', '-c', 'icns', iconset_dir, '-o', 
+            subprocess.run(['iconutil', '-c', 'icns', iconset_dir, '-o',
                           os.path.join(assets_dir, 'icon.icns')], check=True)
-            print("✓ 已创建 icon.icns")
+            print("Created icon.icns")
             
             # 清理临时目录
             import shutil
             shutil.rmtree(iconset_dir)
             
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("iconutil不可用，跳过ICNS创建")
-    
+            print("iconutil not available, skipping ICNS creation")
+
     except Exception as e:
-        print(f"创建ICNS文件失败: {e}")
+        print(f"Failed to create ICNS file: {e}")
 
 
 if __name__ == "__main__":

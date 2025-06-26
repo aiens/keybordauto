@@ -42,7 +42,7 @@ def create_release_package():
     # 复制应用程序
     dist_dir = Path("dist")
     if not dist_dir.exists():
-        print("❌ 未找到dist目录，请先运行打包脚本")
+        print("dist directory not found, please run build script first")
         return False
     
     print("📦 复制应用程序文件...")
@@ -51,9 +51,9 @@ def create_release_package():
         app_path = dist_dir / "KeyboardAutomation.app"
         if app_path.exists():
             shutil.copytree(app_path, release_dir / "KeyboardAutomation.app")
-            print("✓ 已复制 KeyboardAutomation.app")
+            print("Copied KeyboardAutomation.app")
         else:
-            print("❌ 未找到 KeyboardAutomation.app")
+            print("KeyboardAutomation.app not found")
             return False
     else:
         # Windows/Linux可执行文件
@@ -61,9 +61,9 @@ def create_release_package():
         exe_path = dist_dir / exe_name
         if exe_path.exists():
             shutil.copy2(exe_path, release_dir / exe_name)
-            print(f"✓ 已复制 {exe_name}")
+            print(f"Copied {exe_name}")
         else:
-            print(f"❌ 未找到 {exe_name}")
+            print(f"{exe_name} not found")
             return False
     
     # 复制文档和配置
@@ -82,9 +82,9 @@ def create_release_package():
                 shutil.copytree(src_path, release_dir / item)
             else:
                 shutil.copy2(src_path, release_dir / item)
-            print(f"✓ 已复制 {item}")
+            print(f"Copied {item}")
         else:
-            print(f"⚠️ 未找到 {item}")
+            print(f"Warning: {item} not found")
     
     # 创建启动脚本
     print("🚀 创建启动脚本...")
@@ -344,17 +344,17 @@ def main():
     
     # 检查是否已打包
     if not Path("dist").exists():
-        print("❌ 未找到dist目录")
+        print("dist directory not found")
         print("请先运行打包脚本: python3 build_app.py")
         return False
     
     # 创建发布包
     if create_release_package():
-        print("\n🎉 发布包创建成功！")
+        print("\nRelease package created successfully!")
         print("可以将压缩包分发给用户使用。")
         return True
     else:
-        print("\n❌ 发布包创建失败")
+        print("\nRelease package creation failed")
         return False
 
 

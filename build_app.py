@@ -115,7 +115,7 @@ app = BUNDLE(
     with open('KeyboardAutomation.spec', 'w', encoding='utf-8') as f:
         f.write(spec_content)
     
-    print(f"✓ 已创建 {system} 平台的spec文件")
+    print(f"Created spec file for {system} platform")
 
 
 def create_assets():
@@ -140,7 +140,7 @@ Linux: icon.png (256x256 像素的 .png 文件)
     with open(assets_dir / 'icon_readme.txt', 'w', encoding='utf-8') as f:
         f.write(icon_info)
     
-    print("✓ 已创建资源目录和说明文件")
+    print("Created assets directory and readme file")
 
 
 def install_pyinstaller():
@@ -150,7 +150,7 @@ def install_pyinstaller():
         result = subprocess.run([sys.executable, '-m', 'PyInstaller', '--version'],
                               capture_output=True, text=True)
         if result.returncode == 0:
-            print("✓ PyInstaller 已安装")
+            print("PyInstaller is already installed")
             return True
     except Exception:
         pass
@@ -158,10 +158,10 @@ def install_pyinstaller():
     print("正在安装 PyInstaller...")
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyinstaller==6.3.0'])
-        print("✓ PyInstaller 安装成功")
+        print("PyInstaller installed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ PyInstaller 安装失败: {e}")
+        print(f"PyInstaller installation failed: {e}")
         return False
 
 
@@ -173,14 +173,14 @@ def build_app():
 
     # 检查spec文件是否存在
     if not os.path.exists('KeyboardAutomation.spec'):
-        print("⚠️ 未找到spec文件，创建中...")
+        print("Spec file not found, creating...")
         create_spec_file()
 
     # 清理之前的构建
     for dir_name in ['build', 'dist']:
         if os.path.exists(dir_name):
             shutil.rmtree(dir_name)
-            print(f"✓ 已清理 {dir_name} 目录")
+            print(f"Cleaned {dir_name} directory")
 
     # 构建命令
     cmd = [
@@ -208,7 +208,7 @@ def build_app():
                 print(result.stdout)
 
         if success:
-            print("✓ 应用程序构建成功！")
+            print("Application build successful!")
 
             # 显示输出文件信息
             dist_dir = Path('dist')
@@ -307,7 +307,7 @@ pause
         with open('build_windows.bat', 'w', encoding='utf-8') as f:
             f.write(windows_script)
     
-    print(f"✓ 已创建 {system} 构建脚本")
+    print(f"Created build script for {system}")
 
 
 def main():
@@ -333,7 +333,7 @@ def main():
     
     # 构建应用
     if build_app():
-        print("\n🎉 应用程序打包完成！")
+        print("\nApplication packaging completed!")
         print(f"输出目录: {Path('dist').absolute()}")
         
         if system == 'macos':
@@ -349,7 +349,7 @@ def main():
         
         return True
     else:
-        print("\n❌ 应用程序打包失败")
+        print("\nApplication packaging failed")
         return False
 
 
