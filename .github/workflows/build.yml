@@ -1,0 +1,95 @@
+name: Build Cross-Platform Apps
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            ext: .exe
+            script: build_windows.bat
+          - os: ubuntu-latest
+            platform: linux
+            ext: ""
+            script: build_linux.sh
+          - os: macos-latest
+            platform: macos
+            ext: .app
+            script: build_macos.sh
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install system dependencies (Ubuntu)
+      if: matrix.platform == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk python3-dev libx11-dev
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create icon
+      run: python create_icon.py
+    
+    - name: Build application
+      run: python build_app.py
+    
+    - name: Create release package
+      run: python create_release.py
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: KeyboardAutomation-${{ matrix.platform }}
+        path: releases/
+        retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: KeyboardAutomation v${{ github.run_number }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Assets
+      run: |
+        for file in */KeyboardAutomation-*.tar.gz */KeyboardAutomation-*.zip; do
+          if [ -f "$file" ]; then
+            echo "Uploading $file"
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$file" \
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename $file)"
+          fi
+        done

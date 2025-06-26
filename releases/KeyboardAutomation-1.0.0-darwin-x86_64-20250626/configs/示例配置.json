@@ -1,0 +1,81 @@
+{
+  "name": "示例配置",
+  "created_at": "2025-06-25T10:00:00",
+  "version": "1.0",
+  "description": "这是一个示例配置，演示各种按键操作",
+  "repeat_count": 3,
+  "repeat_interval": 2.0,
+  "sequences": [
+    {
+      "name": "打开记事本",
+      "keys": [
+        {
+          "type": "combination",
+          "keys": ["win", "r"]
+        },
+        {
+          "type": "text",
+          "text": "notepad"
+        },
+        {
+          "type": "single",
+          "key": "enter"
+        }
+      ],
+      "count": 1,
+      "interval": 0.5,
+      "random_interval": false,
+      "random_order": false
+    },
+    {
+      "name": "输入示例文本",
+      "keys": [
+        {
+          "type": "text",
+          "text": "Hello, 这是键盘自动化软件的测试！"
+        },
+        {
+          "type": "single",
+          "key": "enter"
+        },
+        {
+          "type": "text",
+          "text": "当前时间: "
+        },
+        {
+          "type": "combination",
+          "keys": ["ctrl", "shift", "t"]
+        }
+      ],
+      "count": 1,
+      "interval": 0.3,
+      "random_interval": false,
+      "random_order": false
+    },
+    {
+      "name": "方向键测试",
+      "keys": [
+        {
+          "type": "single",
+          "key": "up"
+        },
+        {
+          "type": "single",
+          "key": "down"
+        },
+        {
+          "type": "single",
+          "key": "left"
+        },
+        {
+          "type": "single",
+          "key": "right"
+        }
+      ],
+      "count": 2,
+      "interval": 0.2,
+      "random_interval": true,
+      "random_order": true
+    }
+  ]
+}
